@@ -26,8 +26,9 @@ builder.Services.AddSwaggerGen(c =>
         });
 });
 
+const string policyNameRateLimiting = "fixed";
 builder.Services.AddRateLimiter(_ => _
-    .AddFixedWindowLimiter(policyName: "fixed", options =>
+    .AddFixedWindowLimiter(policyName: policyNameRateLimiting, options =>
     {
         options.PermitLimit = 3;
         options.Window = TimeSpan.FromSeconds(5);
@@ -68,7 +69,8 @@ app.MapGet("/contador", (Contador contador) =>
         Mensagem = app.Configuration["Saudacao"]
     });
 })
-.RequireRateLimiting("fixed")
-.Produces<ResultadoContador>();
+.RequireRateLimiting(policyNameRateLimiting)
+.Produces<ResultadoContador>()
+.Produces(StatusCodes.Status503ServiceUnavailable);
 
 app.Run();
